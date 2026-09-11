@@ -1,0 +1,13 @@
+# SolidWorks/Office temporary lock files
+~$*
+
+# SolidWorks source files (not needed)
+*.SLDPRT
+*.SLDASM
+*.STEP
+
+# Exclude everything except mjcf and urdf
+/*
+!/.gitignore
+!/mjcf/
+!/urdf/
