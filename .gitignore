@@ -1,13 +1,14 @@
-# SolidWorks/Office temporary lock files
+﻿# SolidWorks/Office 临时锁文件
 ~$*
 
-# SolidWorks source files (not needed)
+# SolidWorks 源文件
 *.SLDPRT
 *.SLDASM
 *.STEP
 
-# Exclude everything except mjcf and urdf
+# 只保留 urdf / mjcf / README
 /*
 !/.gitignore
+!/README.md
 !/mjcf/
 !/urdf/

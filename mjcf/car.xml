@@ -1,0 +1,107 @@
+<mujoco model="car_wheel_leg">
+  <!--
+    Generated from car_zup.urdf by urdf/tools/make_mjcf.py -- do not hand-edit.
+    Re-run:  cd urdf/tools && ./run.sh make_mjcf.py
+
+    Source of truth: model/car.STEP (geometry) + 质量属性/*.txt (mass).
+    Verified against the URDF: mass matrix identical to 1e-15.
+
+    Total mass 25.53 g; leg pitch 40.0 mm; wheel radius 8.0 mm.
+
+    Frame: Z-up.  CAD "down" (-Y) has been rotated to world -Z by the
+    `mount` body, so gravity is the standard (0,0,-9.81) and the wheels are
+    the lowest feature.
+
+    Bodies : world -> mount(floating) -> body(fixed) -> legs -> wheels
+    Joints : world_to_mount(free), hip_lower, hip_upper (hinge, +-0.8 rad),
+             wheel_lower, wheel_upper (hinge, free spinning)
+    Actuators: one motor per hinge, ctrlrange -1..1, gear chosen from the
+               leg's gravity moment (see <actuator> below)
+
+    THIS IS AN INVERTED PENDULUM.  The total COM sits ~38 mm ABOVE the wheel
+    axle line, so the machine is inherently unstable: with the motors idle it
+    falls over within a second, exactly as a real balance bot would.  That is
+    correct physics, not a modelling defect -- closing the loop is the
+    controller's job.
+
+    `home` keyframe: wheels resting exactly on Z=0, all joints zero, body
+    upright.  This is the pose a balance controller should start from.
+  -->
+
+  <compiler angle="radian" autolimits="true"/>
+
+  <option timestep="0.0005" integrator="implicitfast" gravity="0 0 -9.81"
+          iterations="100" ls_iterations="50"/>
+
+  <default>
+    <geom friction="1.0 0.005 0.0001" condim="3" contype="1" conaffinity="1"
+          solref="0.002 1" solimp="0.99 0.999 0.001"/>
+    <!-- no joint damping: the wheels must spin freely for balance control.
+         solreflimit makes the hip end-stops stiff mechanical limits rather
+         than soft springs, so the leg cannot be driven past +-0.8 rad. -->
+    <joint damping="0" frictionloss="0" armature="0"
+           solreflimit="0.002 1" solimplimit="0.99 0.999 0.001"/>
+  </default>
+
+  <visual>
+    <headlight diffuse="0.6 0.6 0.6" ambient="0.3 0.3 0.3" specular="0 0 0"/>
+    <rgba haze="0.15 0.25 0.35 1"/>
+    <global azimuth="120" elevation="-20"/>
+  </visual>
+
+  <asset>
+    <texture type="skybox" builtin="gradient" rgb1="0.3 0.5 0.7" rgb2="0.1 0.1 0.2"
+             width="512" height="3072"/>
+    <texture type="2d" name="groundplane" builtin="checker" mark="edge"
+             rgb1="0.2 0.3 0.4" rgb2="0.1 0.2 0.3" markrgb="0.8 0.8 0.8"
+             width="300" height="300"/>
+    <material name="groundplane" texture="groundplane" texuniform="true"
+              texrepeat="5 5" reflectance="0.2"/>
+    <mesh name="body_local" file="meshes/body_local.stl"/>
+    <mesh name="leg_lower_local" file="meshes/leg_lower_local.stl"/>
+    <mesh name="leg_upper_local" file="meshes/leg_upper_local.stl"/>
+    <mesh name="wheel_lower_local" file="meshes/wheel_lower_local.stl"/>
+    <mesh name="wheel_upper_local" file="meshes/wheel_upper_local.stl"/>
+  </asset>
+
+  <worldbody>
+    <light pos="0 0 1.5" dir="0 0 -1" directional="true"/>
+    <geom name="floor" type="plane" size="0 0 0.05" material="groundplane"/>
+    <body name="mount">
+      <inertial mass="0.02153" pos="-0.01114 -0.0175 0.0017" quat="0 0.6339704437 0 0.7733572761" diaginertia="3.96522462e-06 3.60349e-06 2.01577538e-06"/>
+      <joint name="world_to_mount" type="free"/>
+      <geom name="<mjtObj.mjOBJ_GEOM:0>" type="mesh" mesh="body_local" quat="0.7071067812 0.7071067812 0 0" rgba="0.70 0.70 0.73 1"/>
+      <body name="leg_lower" pos="-0.009397509 -2.400093457e-19 -0.001080906" quat="0.7071067812 0.7071067812 0 0">
+        <inertial mass="0.00114" pos="-0.000812491 -0.018049094 0.00175" quat="0.4885952921 0.5111503111 -0.4885952921 0.5111503111" diaginertia="1.6738e-07 1.613210456e-07 8.388954431e-09"/>
+        <joint name="hip_lower_joint" type="hinge" axis="0 0 1" range="-0.8 0.8"/>
+        <geom name="<mjtObj.mjOBJ_GEOM:1>" type="mesh" mesh="leg_lower_local" rgba="0.70 0.70 0.73 1"/>
+        <body name="wheel_lower" pos="-0.00180456 -0.039959274 0">
+          <inertial mass="0.00086" pos="2.069e-06 1.8e-07 -0.00326" quat="0.5 0.5 -0.5 0.5" diaginertia="2.592e-08 1.474e-08 1.474e-08"/>
+          <joint name="wheel_lower_joint" type="hinge" axis="0 0 1"/>
+          <geom name="<mjtObj.mjOBJ_GEOM:2>" type="mesh" mesh="wheel_lower_local" rgba="0.70 0.70 0.73 1"/>
+        </body>
+      </body>
+      <body name="leg_upper" pos="-0.009397509 -0.0315 -0.001080906" quat="0.7071067812 0.7071067812 0 0">
+        <inertial mass="0.00114" pos="-0.000812491 -0.018049094 0.00175" quat="0.4885952921 0.5111503111 -0.4885952921 0.5111503111" diaginertia="1.6738e-07 1.613210456e-07 8.388954431e-09"/>
+        <joint name="hip_upper_joint" type="hinge" axis="0 0 1" range="-0.8 0.8"/>
+        <geom name="<mjtObj.mjOBJ_GEOM:3>" type="mesh" mesh="leg_upper_local" rgba="0.70 0.70 0.73 1"/>
+        <body name="wheel_upper" pos="-0.00180456 -0.039959274 0.0035">
+          <inertial mass="0.00086" pos="2.069e-06 1.8e-07 0.00326" quat="0.5 0.5 -0.5 0.5" diaginertia="2.592e-08 1.474e-08 1.474e-08"/>
+          <joint name="wheel_upper_joint" type="hinge" axis="0 0 1"/>
+          <geom name="<mjtObj.mjOBJ_GEOM:4>" type="mesh" mesh="wheel_upper_local" rgba="0.70 0.70 0.73 1"/>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+
+  <actuator>
+    <motor name="hip_lower_joint_motor" joint="hip_lower_joint" gear="0.004473" ctrlrange="-1 1"/>
+    <motor name="wheel_lower_joint_motor" joint="wheel_lower_joint" gear="0.004473" ctrlrange="-1 1"/>
+    <motor name="hip_upper_joint_motor" joint="hip_upper_joint" gear="0.004473" ctrlrange="-1 1"/>
+    <motor name="wheel_upper_joint_motor" joint="wheel_upper_joint" gear="0.004473" ctrlrange="-1 1"/>
+  </actuator>
+
+  <keyframe>
+    <key name="home" qpos="0 0 0.04901324495 1 0 0 0 0 0 0 0"/>
+  </keyframe>
+</mujoco>
